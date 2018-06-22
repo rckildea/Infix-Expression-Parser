@@ -11,7 +11,8 @@ private:
 	static const std::string OPERATORS;
 	Stack<int> operand_stack;
 
-	int eval_op(char op);
-	bool is_operator(char ch) const;
+	bool is_unary(std::string oper);
+	int eval_op(std::string oper, bool unary);
+	int get_operand();
 };
 

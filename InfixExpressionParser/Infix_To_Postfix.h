@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <sstream>
-#include "Stack.cpp"
+#include "Stack.h"
 
 class Infix_To_Postfix
 {
@@ -17,7 +17,7 @@ private:
 	bool is_special_operator(char the_char) const;
 	int precedence(char oper) const;
 	std::string clean_tokens(std::string expression);
-	void check_two_symbol_operator(char one, char two);
+	char check_two_symbol_operator(char one, char two);
 	void get_real_operator_symbols(char oper);
 	void final_format();
 

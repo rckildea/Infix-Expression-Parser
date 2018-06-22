@@ -1,6 +1,7 @@
 #include <cctype>
 #include <algorithm>
 #include <iostream> // remove later
+#include <vector>
 #include "Infix_To_Postfix.h"
 #include "Syntax_Error.h"
 
@@ -16,9 +17,9 @@ n: inequality
 &: logical and
 |: logical or
 */
-const std::string Infix_To_Postfix::OPERATORS = "!~_$^*/%+->@<#dn&|";
-const std::string Infix_To_Postfix::SPECIAL_OPERATORS = "~_$@#dn&|";
-const int Infix_To_Postfix::PRECEDENCE[] = { 8, 8, 8, 8, 7, 6, 6, 6, 5, 5, 4, 4, 4, 4, 3, 3, 2, 1 };
+const std::string Infix_To_Postfix::OPERATORS = "!~_n^*/%+->@<#=$&|()[]{}";
+const std::string Infix_To_Postfix::SPECIAL_OPERATORS = "~_n@#=$&|";
+const int Infix_To_Postfix::PRECEDENCE[] = { 8, 8, 8, 8, 7, 6, 6, 6, 5, 5, 4, 4, 4, 4, 3, 3, 2, 1, -1, -1, -1, -1, -1, -1 };
 
 void Infix_To_Postfix::process_operator(char oper)
 {
@@ -37,6 +38,7 @@ void Infix_To_Postfix::process_operator(char oper)
 			&& operator_stack.top() != '('
 			&& operator_stack.top() != '['
 			&& operator_stack.top() != '{') {
+			
 			postfix += operator_stack.top();
 			postfix += " ";
 			operator_stack.pop();
@@ -113,9 +115,16 @@ std::string Infix_To_Postfix::clean_tokens(std::string expression)
 				newly_tokenized += " ";
 			}
 			else if (is_operator(next_token[i])) {
-				newly_tokenized += next_token[i];
-				while (is_operator(next_token[i + 1])) {
-					++i;
+				if (is_operator(next_token[i+1])) {
+					char check = check_two_symbol_operator(next_token[i], next_token[i+1]);
+					if (check == '?') {
+						newly_tokenized += next_token[i];
+					}
+					else {
+						newly_tokenized += check;
+					}
+				}
+				else {
 					newly_tokenized += next_token[i];
 				}
 				newly_tokenized += " ";
@@ -126,34 +135,34 @@ std::string Infix_To_Postfix::clean_tokens(std::string expression)
 	return newly_tokenized;
 }
 
-void Infix_To_Postfix::check_two_symbol_operator(char one, char two)
+char Infix_To_Postfix::check_two_symbol_operator(char one, char two)
 {
 	if (one == '+' && two == '+') {
-		process_operator('~');
+		return '~';
 	}
 	else if (one == '-' && two == '-') {
-		process_operator('_');
+		return '_';
 	}
 	else if (one == '>' && two == '=') {
-		process_operator('@');
+		return '@';
 	}
 	else if (one == '<' && two == '=') {
-		process_operator('#');
+		return '#';
 	}
 	else if (one == '=' && two == '=') {
-		process_operator('d');
+		return '=';
 	}
 	else if (one == '!' && two == '=') {
-		process_operator('n');
+		return 'n';
 	}
 	else if (one == '&' && two == '&') {
-		process_operator('&');
+		return '&';
 	}
 	else if (one == '|' && two == '|') {
-		process_operator('|');
+		return '|';
 	}
 	else {
-		throw Syntax_Error("Invalid character @ char: 0"); // TODO
+		return '?'; // Just two operators next to each other (e.g. parentheses)
 	}
 }
 
@@ -171,6 +180,9 @@ void Infix_To_Postfix::get_real_operator_symbols(char oper)
 		postfix += '-';
 		postfix += '-';
 	}
+	else if (oper == 'n') {
+		postfix += 'n';
+	}
 	else if (oper == '@') {
 		postfix += '>';
 		postfix += '=';
@@ -179,11 +191,11 @@ void Infix_To_Postfix::get_real_operator_symbols(char oper)
 		postfix += '<';
 		postfix += '=';
 	}
-	else if (oper == 'd') {
+	else if (oper == '=') {
 		postfix += '=';
 		postfix += '=';
 	}
-	else if (oper == 'n') {
+	else if (oper == '$') {
 		postfix += '!';
 		postfix += '=';
 	}
@@ -209,7 +221,7 @@ void Infix_To_Postfix::final_format()
 			get_real_operator_symbols(next_token[0]);
 		}
 		else {
-			postfix += next_token[0];
+			postfix += next_token;
 		}
 		postfix += " ";
 	}
@@ -224,29 +236,63 @@ std::string Infix_To_Postfix::convert(const std::string & expression)
 
 	std::string newly_tokenized = clean_tokens(expression);
 	std::istringstream infix_tokens(newly_tokenized);
-	std::string next_token;
+	std::string current_token, next_token;
+	std::string previous_token = "";
 
-	while (infix_tokens >> next_token) {
-		if (isalnum(next_token[0])) {
-			for (int i = 0; i < next_token.length(); i++) {
-				if (next_token[i] == ' ') {
+	while (infix_tokens >> current_token) {
+		if (is_operator(current_token[0])) {
+			infix_tokens >> next_token;
+			if (current_token[0] == '-') {
+				if (isalnum(previous_token[0]) && isalnum(next_token[0])) {
+					process_operator(current_token[0]);
+					current_token = next_token;
+				}
+				else if (next_token[0] == '-') {
+					process_operator('_');
+				}
+				else {
+					process_operator('n');
+					current_token = next_token;
+				}
+			}
+			else if (is_operator(next_token[0])) {
+				char temp = check_two_symbol_operator(current_token[0], next_token[0]);
+				if (temp == '?') {
+					if (current_token[0] == '-') {
+						process_operator('n');
+						process_operator(next_token[0]);
+					}
+					else if (next_token[0] == '-') {
+						process_operator(current_token[0]);
+						process_operator('n');
+					}
+					else {
+						process_operator(current_token[0]);
+						process_operator(next_token[0]);
+					}
+				}
+				else {
+					process_operator(temp);
+				}
+			}
+			else {
+				process_operator(current_token[0]);
+				current_token = next_token;
+			}
+		}
+		if (isalnum(current_token[0])) {
+			for (int i = 0; i < current_token.length(); i++) {
+				if (current_token[i] == ' ') {
 					break;
 				}
-				postfix += next_token[i];
+				postfix += current_token[i];
 			}
 			postfix += " ";
 		}
-		else if (is_operator(next_token[0])) {
-			if (is_operator(next_token[1])) { // TODO: d, n, and other symbols will currently trigger this.  Make "Real operators" and fix
-				check_two_symbol_operator(next_token[0], next_token[1]);
-			}
-			else {
-				process_operator(next_token[0]);
-			}
-		}
-		else {
+		if (!is_operator(current_token[0]) && ! isalnum(current_token[0])) {
 			throw Syntax_Error("Invalid character @ char: 0"); // TODO
 		}
+		previous_token = current_token;
 	}
 
 	while (!operator_stack.empty()) {
