@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{B56AC1FE-82F5-413D-BC84-083D06726855}</ProjectGuid>
-    <RootNamespace>InfixExpressionParser</RootNamespace>
+    <ProjectGuid>{0D69620B-B7D4-4155-8087-9247A3A257F2}</ProjectGuid>
+    <RootNamespace>InfixExpressionParser2</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -118,16 +118,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Infix_To_Postfix.h" />
-    <ClInclude Include="Node.h" />
-    <ClInclude Include="Postfix_Evaluator.h" />
-    <ClInclude Include="Stack.h" />
-    <ClInclude Include="Syntax_Error.h" />
+    <ClCompile Include="Evaluator.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Parser.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Infix_To_Postfix.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Postfix_Evaluator.cpp" />
+    <ClInclude Include="Evaluator.h" />
+    <ClInclude Include="Parser.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
