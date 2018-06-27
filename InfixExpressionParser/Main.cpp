@@ -9,7 +9,7 @@ int main() {
 	std::stack<int> operand_stack;
 	Evaluator e;
 
-	std::string expression = "7 + 3 * (5 + 9 -4) / 3";
+	std::string expression = "8 / (5 - 4)";
 
 	std::string new_expression = Parser::Parse(expression);
 	

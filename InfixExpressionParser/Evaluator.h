@@ -13,6 +13,7 @@ public:
 private:
 	std::stack<std::string> operator_stack;
 	std::stack<int> operand_stack;
+	std::string original_expression;
 
 	void calculate(int rhs, char op);
 	bool higher_precedence(std::string current, std::string top);

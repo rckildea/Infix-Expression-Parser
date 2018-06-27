@@ -10,5 +10,6 @@ public:
 private:
 	static bool isoperator(char ch);
 	static char process_double_operators(char first, char second);
+	static bool check_binary_operator(char op);
 };
 

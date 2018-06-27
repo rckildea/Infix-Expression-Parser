@@ -2,6 +2,8 @@
 
 
 int Evaluator::evaluate(const std::string & expression) {
+	original_expression = expression;
+
 	while (!operand_stack.empty()) {
 		operand_stack.pop();
 	}
@@ -9,9 +11,22 @@ int Evaluator::evaluate(const std::string & expression) {
 	std::istringstream iss(expression);
 	std::string token;
 	std::string temp;
+	int pos = 0;
 
 	while (iss >> token) {
-		if (token[0] == '-' || isdigit(token[0])) {
+		if (token[0] == '-') {
+			for (int i = 0; i < token.length(); ++i) {
+				if (isdigit(token[i])) {
+					if (i % 2 == 0) {
+						operand_stack.push(stoi(token.substr(i)));
+					}
+					else {
+						operand_stack.push(-1 * stoi(token.substr(i)));
+					}
+				}
+			}
+		}
+		else if (isdigit(token[0])) {
 			operand_stack.push(stoi(token));
 		}
 		else {
@@ -72,7 +87,20 @@ void Evaluator::calculate(int rhs, char op) {
 		switch (op) {
 			case '^': operand_stack.push(int(pow(lhs, rhs))); break;
 			case '*': operand_stack.push(lhs * rhs); break;
-			case '/': operand_stack.push(lhs / rhs); break;
+			case '/': 
+				if (rhs == 0) {
+					int num_divisions = 1;
+					while (!operator_stack.empty()) {
+						if (operator_stack.top()[0] == '/') {
+							++num_divisions;
+						}
+					}
+					std::cout << "Error: Division by zero" << std::endl;
+				}
+				else {
+					operand_stack.push(lhs / rhs);
+				}
+				break;
 			case '%': operand_stack.push(lhs % rhs); break;
 			case '+': operand_stack.push(lhs + rhs); break;
 			case 'm': operand_stack.push(lhs - rhs); break;
