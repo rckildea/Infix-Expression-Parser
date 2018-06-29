@@ -1,23 +1,26 @@
 #include <stack>
 #include <string>
-#include <sstream>
-#include "Parser.h"
 #include "Evaluator.h"
 
+/* 
+Name: Ryan Kildea
+Date: 06/28/18
+CS 303
+
+This program takes a mathematical expression, parses and primes it, then
+sends it to an evaluator where it is analyzed and the result is output. */
+
 int main() {
-	std::stack<char> operator_stack;
-	std::stack<int> operand_stack;
 	Evaluator e;
 
-	std::string expression = "8 / (5 - 4)";
+	std::string expression = "5 * (-(7) * 3+8)";
 
-	std::string new_expression = Parser::Parse(expression);
-	
-	std::cout << new_expression << std::endl;
-
-	int result = e.evaluate(new_expression);
-
-	std::cout << "\n" << result << std::endl;
+	try {
+		int result = e.evaluate(expression);
+	}
+	catch (std::exception& e) {
+		std::cerr << e.what() << std::endl;
+	}
 
 	return 0;
 }
